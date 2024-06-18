@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import rospy
+from simple_pid import PID
 from std_msgs.msg import Bool
-from robotic_sas_auv_ros.msg import Actuator
+from robotic_sas_auv_ros.msg import Actuator,Error
 
 class Movement():
     def __init__(self):
@@ -25,42 +26,42 @@ class Movement():
         self.pwm_actuator.thruster_2 = 1500 + pwm
         self.pwm_actuator.thruster_3 = 1500 + pwm
         self.pwm_actuator.thruster_4 = 1500 + pwm
-        self.publish()
+        
 
     def sway(self, pwm):
         self.pwm_actuator.thruster_1 = 1500 - pwm
         self.pwm_actuator.thruster_2 = 1500 + pwm
         self.pwm_actuator.thruster_3 = 1500 + pwm
         self.pwm_actuator.thruster_4 = 1500 - pwm
-        self.publish()
+      
 
     def yaw(self, pwm):
         self.pwm_actuator.thruster_1 = 1500 - pwm
         self.pwm_actuator.thruster_2 = 1500 - pwm
         self.pwm_actuator.thruster_3 = 1500 + pwm
         self.pwm_actuator.thruster_4 = 1500 + pwm
-        self.publish()
+        
 
     def heave(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 + pwm
         self.pwm_actuator.thruster_6 = 1500 + pwm
         self.pwm_actuator.thruster_7 = 1500 + pwm
         self.pwm_actuator.thruster_8 = 1500 + pwm
-        self.publish()
+    
 
     def roll(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 - pwm
         self.pwm_actuator.thruster_6 = 1500 + pwm
         self.pwm_actuator.thruster_7 = 1500 - pwm
         self.pwm_actuator.thruster_8 = 1500 + pwm
-        self.publish()
+      
 
     def pitch(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 + pwm
         self.pwm_actuator.thruster_6 = 1500 + pwm
         self.pwm_actuator.thruster_7 = 1500 - pwm
         self.pwm_actuator.thruster_8 = 1500 - pwm
-        self.publish()
+
 
     def stop(self):
         self.pwm_actuator.thruster_1 = 1500
@@ -73,7 +74,7 @@ class Movement():
         self.pwm_actuator.thruster_8 = 1500
         self.pwm_actuator.thruster_9 = 1500
         self.pwm_actuator.thruster_10 = 1500
-        self.publish()
+        
 
     def publish(self):
         self.pub_pwm_actuator.publish(self.pwm_actuator)
@@ -83,7 +84,13 @@ class Subscriber():
         self.is_start = False
         self.start_time = 0
 
+        self.pid_heave = PID(1000, 0, 0)
+        self.pid_roll = PID(500, 20, 50)
+        self.pid_pitch = PID(500, 20, 50)
+        self.pid_yaw = PID(1200, 20, 50)
+
         self.movement = Movement()
+        self.error = Error()
 
         self.param_pwm = rospy.get_param('/nuc/pwm')
         self.param_duration = rospy.get_param('/nuc/duration')
@@ -92,6 +99,28 @@ class Subscriber():
         self.rate = rospy.Rate(10)
 
         rospy.Subscriber('/rosserial/is_start', Bool, self.callback_is_start)
+        rospy.Subscriber('error', Error, self.callback_error)
+
+    def stabilize_roll(self, error):
+        self.pwm_roll = self.pid_roll(error)
+
+    def stabilize_pitch(self, error):
+        self.pwm_pitch = self.pid_pitch(error)
+
+    def stabilize_yaw(self, error):
+        self.pwm_yaw = self.pid_yaw(error)
+
+    def stabilize_depth(self, error):
+        self.pwm_heave = self.pid_heave(error)
+
+    # Collect Error Data
+    def callback_error(self, data: Error):
+        self.error = data
+        self.stabilize_roll(data.roll)
+        self.stabilize_pitch(data.pitch)
+        self.stabilize_depth(data.depth)
+        self.stabilize_yaw(data.yaw)
+    
 
     def start_auv(self):
         if self.param_movement == 'surge':

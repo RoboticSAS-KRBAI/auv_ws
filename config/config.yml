@@ -68,4 +68,3 @@ witmotion_imu:
         enabled: true
         topic_name: /witmotion_clock
         presync: true
-

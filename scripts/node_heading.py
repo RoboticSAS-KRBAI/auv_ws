@@ -25,8 +25,7 @@ def main():
             rospy.loginfo(data_str)
 
             for data in data_str.split(','):
-                data_name, data_value = data.split(':')
-                
+                data_name, data_value = data.split(':')                
                 if data_name == 'Magx':
                     heading.mag_x = int(data_value)
                 if data_name == 'Magy':
