@@ -41,8 +41,8 @@ class Subscriber():
     # Collect Sensor Data
     def callback_sensor(self, data: Sensor):
         # Calculate Error Value
-        error_roll = self.calculate_orientation_error(data.roll, self.set_point.roll)
-        error_pitch = self.calculate_orientation_error(data.pitch, self.set_point.pitch)
+        error_roll = self.calculate_heading_error(data.roll, self.set_point.roll)
+        error_pitch = self.calculate_heading_error(data.pitch, self.set_point.pitch)
         error_yaw = self.calculate_heading_error(data.yaw, self.set_point.yaw)
         error_depth = self.set_point.depth - data.depth
 

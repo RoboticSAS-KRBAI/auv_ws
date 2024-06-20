@@ -6,18 +6,21 @@ from robotic_sas_auv_ros.msg import SetPoint, IsStable, Movement
 
 class Subscriber():
     def __init__ (self):
-        self.is_start = False   
+        self.is_start = False
         self.boot_time = 0
         self.start_time = 0
 
         self.is_stable = IsStable()
         self.set_point = SetPoint()
         self.movement = Movement()
+        self.filter = 0
 
-        self.set_point.roll = 0.0 #y
-        self.set_point.pitch = 0.0 #x
-        self.set_point.yaw = -113
+        self.set_point.roll = 0 #y
+        self.set_point.pitch = 0 #x
+        self.set_point.yaw = -88
         self.set_point.depth = -0.4
+
+        
 
         self.param_delay = rospy.get_param('/nuc/delay')
         self.param_duration = rospy.get_param('/nuc/duration')
@@ -27,11 +30,19 @@ class Subscriber():
         self.pub_set_point = rospy.Publisher('set_point', SetPoint, queue_size=10)
         self.pub_movement = rospy.Publisher('movement', Movement, queue_size=10)
         self.pub_constrain_pwm = rospy.Publisher('constrain_pwm', Int32, queue_size=10)
+        self.pub_delay = rospy.Publisher('is_delay', Bool, queue_size=10)
 
         # Subscriber
         rospy.Subscriber('/rosserial/is_start', Bool, self.callback_is_start)
         rospy.Subscriber('is_stable', IsStable, self.callback_is_stable)
         rospy.Subscriber('dive',Bool,self.callback_dive)
+        # rospy.Subscriber('/filterYaw',Float32,self.callback_filterYaw)
+
+    # def callback_filterYaw(self,data:Float32):
+    #     self.filter = data.data
+    #     print("dsfsdfa = ",self.set_point.yaw)
+    
+
     def set_depth(self, depth):
         # Change depth set point from the given value
         rospy.loginfo('Set Depth %s', depth)
@@ -39,8 +50,10 @@ class Subscriber():
 
     def set_heading(self, heading):
         # Change yaw set point from the given value
-        rospy.loginfo('Set Heading %s', heading)
+        # pass
+        rospy.loginfo('Set Sway %s', heading)
         self.set_point.yaw = heading
+        # self.set_point.sway = heading
 
     def publish_movement(self, type, pwm):
         # Publish command and pwm value to node control
@@ -53,9 +66,6 @@ class Subscriber():
         self.dive = data
 
     def is_in_range(self, start_time, end_time):
-        # a = start_time
-        # if a == 22 :
-        #     start_time = 0
         return (self.boot_time > start_time + self.param_delay and end_time is None) or (start_time + self.param_delay) < self.boot_time < (end_time + self.param_delay)
 
     def stop_auv(self):
@@ -64,10 +74,10 @@ class Subscriber():
         self.pub_is_start.publish(False)
 
     def start_auv(self):
-        # # Stop AUV when the timer reaches 27 secs since pre calibration
-        if self.is_in_range(30, None):
-            self.stop_auv()
-            return
+        # Stop AUV when the timer reaches 27 secs since pre calibration
+        # if self.is_in_range(30, None):
+        #     self.stop_auv()
+        #     return
 
         # # Start AUV mission
         self.pub_set_point.publish(self.set_point)
@@ -75,68 +85,41 @@ class Subscriber():
         if not self.dive.data:
 
             # TIMERR
-            if self.is_in_range(0,15):
-                self.set_heading(-116)
-            if self.is_in_range(15, None):
-                self.set_heading(-14)
-        #     if self.is_in_range(16,26):
-        #         self.set_heading(0)
-        #     if self.is_in_range(27,30):
-        #         self.set_heading(88)
-        #     if self.is_in_range(31,None):
-        #         self.set_heading(0)
+            if self.is_in_range(6,16):
+                # self.pub_delay.publish(False)
+                self.set_heading(-88)
+            if self.is_in_range(17, 22):
+                # self.pub_delay.publish(True)
+                self.set_heading(-168)
+            if self.is_in_range(23, None):
+                # self.pub_delay.publish(False)
+                self.set_heading(-88)
+            # if self.is_in_range(22,None):
+            #     # self.pub_delay.publish(False)
+            #     self.set_heading(-88)
 
-            
-            if self.is_in_range(0,3):
-                # self.set_heading(-53)
-                # self.publish_movement('SURGE', 1500)
+            if self.is_in_range(6,7):
                 self.pub_constrain_pwm.publish(1500)
-            if self.is_in_range(4,7):
-                # self.set_heading(-60)
-                # self.publish_movement('SURGE', 1475)
-                self.pub_constrain_pwm.publish(1475)
-            if self.is_in_range(8,11): 
-                # self.set_heading(-70)
-                # self.publish_movement('SURGE', 1450)
+            if self.is_in_range(7,8): 
+                self.pub_constrain_pwm.publish(1490)
+            if self.is_in_range(8,9):
+                self.pub_constrain_pwm.publish(1480)
+            if self.is_in_range(9,10):
+                self.pub_constrain_pwm.publish(1470)
+            if self.is_in_range(10, 11):
+                self.pub_constrain_pwm.publish(1460)
+            if self.is_in_range(11,12):
                 self.pub_constrain_pwm.publish(1450)
-            if self.is_in_range(12,15):
-                # self.set_heading(-65)
-                # self.publish_movement('SURGE', 1425)
-                self.pub_constrain_pwm.publish(1425)
-            if self.is_in_range(16,19):
-                # self.set_heading(-65)
-                # self.publish_movement('SURGE', 1400)
+            if self.is_in_range(12,13):
+                self.pub_constrain_pwm.publish(1440)
+            if self.is_in_range(13,14):
+                self.pub_constrain_pwm.publish(1430)
+            if self.is_in_range(14,15):
+                self.pub_constrain_pwm.publish(1420)
+            if self.is_in_range(15,16):
+                self.pub_constrain_pwm.publish(1410)
+            if self.is_in_range(16,None):
                 self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(20,23):
-                # self.set_heading(-70)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(24,27):
-                # self.set_heading(-75)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(28,31):
-                # self.set_heading(-75)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(32,None):
-                # self.set_heading(-75)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-
-            # if self.is_in_range(0,3):
-            #     self.publish_movement('SURGE', 1500)
-            # if self.is_in_range(4,7):
-            #     self.publish_movement('SURGE', 1450)
-            # if self.is_in_range(8,11):
-            #     self.publish_movement('SURGE', 1400)
-            # if self.is_in_range(12,15):
-            #     self.publish_movement('SURGE', 1350)
-            # if self.is_in_range(16,19):
-            #     self.publish_movement('SURGE', 1300)
-            # if self.is_in_range(20,40):
-            #     self.publish_movement('SURGE', 1250)
-
 
     # Collect IsStable Data
     def callback_is_stable(self, data: IsStable):

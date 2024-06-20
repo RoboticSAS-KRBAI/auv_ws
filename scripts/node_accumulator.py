@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import math
 import rospy
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool,Float32
 from sensor_msgs.msg import Imu
 from robotic_sas_auv_ros.msg import ArduinoSensor, Sensor, BoundingBox, ObjectDetection, Heading
 from nav_msgs.msg import Odometry
@@ -30,6 +30,7 @@ class Subscriber():
         rospy.Subscriber('/camera/odom/sample', Odometry, self.callback_odometry)
         # rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.callback_bounding_boxes)
         rospy.Subscriber('/rosserial/sensor', ArduinoSensor, self.callback_arduino_sensor)
+        rospy.Subscriber('/filterYaw',Float32,self.callback_filterYaw)
 
     def pre_calibrate(self):
         # Set offset values in order to set the initial sensor value to zero
@@ -58,17 +59,22 @@ class Subscriber():
 
     # Collect IMU Data
     def callback_imu(self, data: Imu):
-        self.sensor.roll = math.atan2(2.0*(data.orientation.y*data.orientation.z + data.orientation.w*data.orientation.x), data.orientation.w*data.orientation.w - data.orientation.x*data.orientation.x - data.orientation.y*data.orientation.y + data.orientation.z*data.orientation.z)
-        self.sensor.pitch = math.asin(-2.0*(data.orientation.x*data.orientation.z - data.orientation.w*data.orientation.y))
-        self.sensor.yaw = 180/math.pi*(math.atan2(2.0*(data.orientation.x*data.orientation.y + data.orientation.w*data.orientation.z), data.orientation.w*data.orientation.w + data.orientation.x*data.orientation.x - data.orientation.y*data.orientation.y - data.orientation.z*data.orientation.z))
+        self.sensor.roll = 180/math.pi*(math.atan2(2.0*(data.orientation.y*data.orientation.z + data.orientation.w*data.orientation.x), data.orientation.w*data.orientation.w - data.orientation.x*data.orientation.x - data.orientation.y*data.orientation.y + data.orientation.z*data.orientation.z))
+        self.sensor.pitch = 180/math.pi*(math.asin(-2.0*(data.orientation.x*data.orientation.z - data.orientation.w*data.orientation.y)))
+        # self.sensor.yaw = 180/math.pi*(math.atan2(2.0*(data.orientation.x*data.orientation.y + data.orientation.w*data.orientation.z), data.orientation.w*data.orientation.w + data.orientation.x*data.orientation.x - data.orientation.y*data.orientation.y - data.orientation.z*data.orientation.z))
         # self.sensor.roll = round(data.orientation.y, 3) - self.get_offset(self.offset_roll)
         # self.sensor.pitch = round(data.orientation.x, 3) - self.get_offset(self.offset_pitch)
 
     # Collect Heading Date
     def callback_heading(self, data: Heading):
         pass
-        # self.sensor.yaw = round(data.yaw) 
+        # self.sensor.yaw = round(data.yaw)
+        # self.sensor.sway = round(data.yaw) 
         #- self.get_offset(self.offset_yaw)
+
+    def callback_filterYaw(self,data:Float32):
+        self.sensor.yaw = data.data
+        # print("dsfsdfa = ",self.set_point.yaw)
 
     # Collect BoundingBoxes Data
     # def callback_bounding_boxes(self, data: BoundingBoxes):
