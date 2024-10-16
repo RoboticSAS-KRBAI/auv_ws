@@ -1,41 +1,28 @@
-#!/usr/bin/env python3
 import numpy as np
-from robotic_sas_auv_ros.msg import Actuator
-import rospy
+
 class ROVController:
     def __init__(self, d):
         self.d = d
         self.sqrt2 = np.sqrt(2)
-        
-        # Matriks transformasi
+
         self.M = np.array([
+            [-1/self.sqrt2, 1/self.sqrt2, 1/self.sqrt2, -1/self.sqrt2],
             [1/self.sqrt2, 1/self.sqrt2, 1/self.sqrt2, 1/self.sqrt2],
-            [1/self.sqrt2, -1/self.sqrt2, -1/self.sqrt2, 1/self.sqrt2],
-            [d/2, -d/2, -d/2, d/2]
+            [d/2, -d/2, -d/2, d/2],
+            [1, -1, 1, -1]  # Kontribusi untuk momen yaw
         ])
 
     def control(self, Fx, Fy, tau):
         # Vektor gaya yang diinginkan
-        F = np.array([Fx, Fy, tau])
+        F = np.array([Fx, Fy, 0, tau])  # tau dimasukkan ke koordinat keempat
         
         # Menghitung thrust yang diperlukan menggunakan pseudo-inverse matriks
-        T = np.linalg.pinv(self.M).dot(F)
+        T = np.dot(np.linalg.pinv(self.M), F)
 
         return T
 
-    def spin(self) :
-        rospy.spin()
-
 
 if __name__ == '__main__' :
-
-    rospy.init_node("gerak", anonymous=False)
-
-    thrust = Actuator()
-
-    publish_thrush = rospy.Publisher('pwm_actuator', Actuator, queue_size=10)
-
-
 
     # Parameter ROV
     d = 1.0  # Jarak dari pusat ROV ke thruster
@@ -44,24 +31,19 @@ if __name__ == '__main__' :
     controller = ROVController(d)
 
     # Gaya yang diinginkan (Fx, Fy, tau)
-    Fx = 0# Gaya maju
-    Fy = -3  # Gaya ke samping
-    tau = 0 # Momen yaw
+    Fx = 0  # Gaya maju
+    Fy = 2.5  # Gaya ke samping
+    tau = 0  # Momen yaw
 
     # Hitung thrust yang diperlukan untuk setiap thruster
-    thrusts = controller.control(Fx, Fy, tau)
-    thrust.thruster_1 = thrusts[0]
-    thrust.thruster_2 = thrusts[1]
-    thrust.thruster_3 = thrusts[2]
-    thrust.thruster_4 = thrusts[3]
-    # publish_thrush.publish(thrust)
+    thrusts = controller.control(Fx, Fy ,tau)
 
     # Tampilkan thrust yang diperlukan untuk setiap thruster
-    print(f'Thrusts: {thrusts}')
-    print(1500 - thrusts[0]*500)
-    print(1500 - thrusts[1]*500)
-    print(1500 - thrusts[2]*500)
-    print(1500 - thrusts[3]*500)
-
-    controller.spin()
-    
+    print(f'Thruster 1: {thrusts[0]:.2f}')
+    print(f'Thruster 2: {thrusts[1]:.2f}')
+    print(f'Thruster 3: {thrusts[3]:.2f}')
+    print(f'Thruster 4: {thrusts[2]:.2f}')
+    print(f'PWM Thruster 1: {1500 - thrusts[0]*500:.2f}')
+    print(f'PWM Thruster 2: {1500 - thrusts[1]*500:.2f}')
+    print(f'PWM Thruster 3: {1500 - thrusts[3]*500:.2f}')
+    print(f'PWM Thruster 4: {1500 - thrusts[2]*500:.2f}')

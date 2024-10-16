@@ -1,23 +1,41 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import Bool, Int32
+from std_msgs.msg import String, Int32, Bool, Int8
 from robotic_sas_auv_ros.msg import SetPoint, IsStable, Movement
 
 class Subscriber():
     def __init__ (self):
-        self.is_start = False   
+        self.is_start = False
         self.boot_time = 0
         self.start_time = 0
+        self.bucket = False
+        self.bucket_detected = False
 
         self.is_stable = IsStable()
         self.set_point = SetPoint()
         self.movement = Movement()
+        self.filter = 0
+        self.dive = False
+        self.flag = 0
+        self.yaw = -13
+        self.largest_object = ""
 
-        self.set_point.roll = 0.0 #y
-        self.set_point.pitch = 0.0 #x
-        self.set_point.yaw = -113
-        self.set_point.depth = -0.4
+        self.perintah = ""
+        self.obstacle = False
+        self.mulai = 0
+        self.zona = 0
+        self.duration_obstacle = 7
+        self.current_time = 0
+        self.elapsed_time = 0
+        self.start = 0
+        self.start_delay = False
+        self.delay = 3
+
+        self.set_point.roll = 0 #y
+        self.set_point.pitch = 0 #x
+        self.set_point.yaw = self.yaw
+        self.set_point.depth = 0.5
 
         self.param_delay = rospy.get_param('/nuc/delay')
         self.param_duration = rospy.get_param('/nuc/duration')
@@ -27,35 +45,66 @@ class Subscriber():
         self.pub_set_point = rospy.Publisher('set_point', SetPoint, queue_size=10)
         self.pub_movement = rospy.Publisher('movement', Movement, queue_size=10)
         self.pub_constrain_pwm = rospy.Publisher('constrain_pwm', Int32, queue_size=10)
+        self.pub_move = rospy.Publisher('move', String, queue_size=10)
 
         # Subscriber
         rospy.Subscriber('/rosserial/is_start', Bool, self.callback_is_start)
-        rospy.Subscriber('is_stable', IsStable, self.callback_is_stable)
-        rospy.Subscriber('dive',Bool,self.callback_dive)
-    def set_depth(self, depth):
-        # Change depth set point from the given value
-        rospy.loginfo('Set Depth %s', depth)
-        self.set_point.depth = depth
+        rospy.Subscriber('dive', Bool, self.callback_dive)
+        rospy.Subscriber('perintah', String, self.callback_perintah)
+        rospy.Subscriber('flag', Int8, self.callback_flag)
+        rospy.Subscriber('/rosserial/bucket_detected', Bool, self.callback_bucket)
+        rospy.Subscriber('largest_object', String, self.callback_largest_object)
+
+    def callback_bucket(self, data: Bool):
+        self.bucket = data.data
+        if self.bucket:
+            self.bucket_detected = True
+
+    def callback_largest_object(self, data: String):
+        self.largest_object = data.data
+
+    def callback_flag(self, data: Int8):
+        self.flag = data.data
+
+    def callback_perintah(self, data: String):
+        self.perintah = data.data
+        print("largest_object = ", self.largest_object)
+        if self.largest_object == "Obstacle":
+            if self.perintah == "Avoid" and (not self.obstacle) : #and self.flag >= 1:
+                rospy.sleep(1.0) 
+                self.obstacle = True
+                self.zona = 2
+                rospy.loginfo("detect obstacleeeeee")
+                self.mulai = rospy.get_time()
+                rospy.Timer(rospy.Duration(1), self.time_object_detection, oneshot=False)
+        
+        if self.largest_object == "Bucket":
+            if self.perintah == "Drop" and self.flag == 3:
+                self.zona = 3
+                rospy.loginfo("detected bucketttttt")
+        
+        if self.largest_object == "Gate":
+            if self.perintah == "Centering" and (self.flag == 0 or self.flag == 2):
+                self.zona = 1
+                rospy.loginfo("detected gateeeeeeeee")
+
+    def time_object_detection(self, event):
+        self.current_time = rospy.get_time()
+        self.elapsed_time = self.current_time - self.mulai
+
+    def delay_time(self, event):
+        self.current_time = rospy.get_time()
+        self.elapsed_time = self.current_time - self.start
 
     def set_heading(self, heading):
         # Change yaw set point from the given value
-        rospy.loginfo('Set Heading %s', heading)
+        rospy.loginfo('Set Yaw %s', heading)
         self.set_point.yaw = heading
 
-    def publish_movement(self, type, pwm):
-        # Publish command and pwm value to node control
-        # rospy.loginfo('Set %s %s', type, pwm)
-        self.movement.type = type
-        self.movement.pwm = pwm
-        self.pub_movement.publish(self.movement)
-
-    def callback_dive(self, data:Bool):
-        self.dive = data
+    def callback_dive(self, data: Bool):
+        self.dive = data.data
 
     def is_in_range(self, start_time, end_time):
-        # a = start_time
-        # if a == 22 :
-        #     start_time = 0
         return (self.boot_time > start_time + self.param_delay and end_time is None) or (start_time + self.param_delay) < self.boot_time < (end_time + self.param_delay)
 
     def stop_auv(self):
@@ -64,83 +113,81 @@ class Subscriber():
         self.pub_is_start.publish(False)
 
     def start_auv(self):
-        # # Stop AUV when the timer reaches 27 secs since pre calibration
-        if self.is_in_range(30, None):
-            self.stop_auv()
-            return
-
-        # # Start AUV mission
+        # Stop AUV when the timer reaches 27 secs since pre calibration
+        # if self.is_in_range(61, None):
+        #     self.stop_auv()
+        #     return
+        
+        # Start AUV mission
         self.pub_set_point.publish(self.set_point)
         self.pub_is_start.publish(True)
-        if not self.dive.data:
 
-            # TIMERR
-            if self.is_in_range(0,15):
-                self.set_heading(-116)
-            if self.is_in_range(15, None):
-                self.set_heading(-14)
-        #     if self.is_in_range(16,26):
-        #         self.set_heading(0)
-        #     if self.is_in_range(27,30):
-        #         self.set_heading(88)
-        #     if self.is_in_range(31,None):
-        #         self.set_heading(0)
+        if not self.dive:  
+            if self.flag == 3 :
+                rospy.loginfo("bucket detected = %s", self.bucket_detected)
+                if self.zona == 3:
+                    self.set_point.depth = 0.05    
+                    if self.bucket_detected == False:
+                        self.pub_move.publish("camera")
+                        rospy.loginfo("search bucketttttt")
+                    else:
+                        rospy.loginfo("Surface")
+                        self.pub_move.publish("surface")
+                        if self.start_delay == False:
+                            self.start = rospy.get_time()
+                            rospy.Timer(rospy.Duration(1), self.delay_time, oneshot=False)
+                            self.start_delay = True
+                        elif self.elapsed_time <= self.delay:
+                            pass
+                        else:
+                            self.set_point.depth = 0.05
+                else:
+                    self.set_heading(self.yaw)
+                    self.pub_move.publish("yaw_right")
+                    rospy.loginfo("ke kanannnnnn")
 
-            
-            if self.is_in_range(0,3):
-                # self.set_heading(-53)
-                # self.publish_movement('SURGE', 1500)
+            elif self.zona == 1 :
+                self.pub_move.publish("camera")
+                rospy.loginfo("search gateeeeeee")
+
+            elif self.zona == 2:
+                self.set_heading(self.yaw)
+                if self.elapsed_time <= self.duration_obstacle and self.obstacle:
+                    self.pub_move.publish("left")
+                    rospy.loginfo("sway kiriiiiiii")
+                else:
+                    self.pub_move.publish("camera")
+                    rospy.loginfo("majuuuuuu keduaaaaaaaaaa")
+
+            elif self.is_in_range(6, None):
+                self.pub_move.publish("camera")
+                rospy.loginfo("majuuuuu awallllllll")
+
+            rospy.loginfo("zona = %d", self.zona)
+            rospy.loginfo("flag = %d", self.flag)
+
+            if self.is_in_range(6, 7):
                 self.pub_constrain_pwm.publish(1500)
-            if self.is_in_range(4,7):
-                # self.set_heading(-60)
-                # self.publish_movement('SURGE', 1475)
-                self.pub_constrain_pwm.publish(1475)
-            if self.is_in_range(8,11): 
-                # self.set_heading(-70)
-                # self.publish_movement('SURGE', 1450)
+            if self.is_in_range(7, 8): 
+                self.pub_constrain_pwm.publish(1490)
+            if self.is_in_range(8, 9):
+                self.pub_constrain_pwm.publish(1480)
+            if self.is_in_range(9, 10):
+                self.pub_constrain_pwm.publish(1470)
+            if self.is_in_range(10, 11):
+                self.pub_constrain_pwm.publish(1460)
+            if self.is_in_range(11, 12):
                 self.pub_constrain_pwm.publish(1450)
-            if self.is_in_range(12,15):
-                # self.set_heading(-65)
-                # self.publish_movement('SURGE', 1425)
-                self.pub_constrain_pwm.publish(1425)
-            if self.is_in_range(16,19):
-                # self.set_heading(-65)
-                # self.publish_movement('SURGE', 1400)
+            if self.is_in_range(12, 13):
+                self.pub_constrain_pwm.publish(1440)
+            if self.is_in_range(13, 14):
+                self.pub_constrain_pwm.publish(1430)
+            if self.is_in_range(14, 15):
+                self.pub_constrain_pwm.publish(1420)
+            if self.is_in_range(15, 16):
+                self.pub_constrain_pwm.publish(1410)
+            if self.is_in_range(16, None):
                 self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(20,23):
-                # self.set_heading(-70)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(24,27):
-                # self.set_heading(-75)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(28,31):
-                # self.set_heading(-75)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-            if self.is_in_range(32,None):
-                # self.set_heading(-75)
-                # self.publish_movement('SURGE', 1375)
-                self.pub_constrain_pwm.publish(1400)
-
-            # if self.is_in_range(0,3):
-            #     self.publish_movement('SURGE', 1500)
-            # if self.is_in_range(4,7):
-            #     self.publish_movement('SURGE', 1450)
-            # if self.is_in_range(8,11):
-            #     self.publish_movement('SURGE', 1400)
-            # if self.is_in_range(12,15):
-            #     self.publish_movement('SURGE', 1350)
-            # if self.is_in_range(16,19):
-            #     self.publish_movement('SURGE', 1300)
-            # if self.is_in_range(20,40):
-            #     self.publish_movement('SURGE', 1250)
-
-
-    # Collect IsStable Data
-    def callback_is_stable(self, data: IsStable):
-        self.is_stable = data
 
     def callback_is_start(self, data: Bool):
         if data.data:

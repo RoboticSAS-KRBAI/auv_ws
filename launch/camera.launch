@@ -1,11 +1,4 @@
 <launch>
-    <arg name='rate' default='10' />
-    <arg name='cam_index' default='0' />
-
-    <group ns='nuc'>
-        <param name='rate' value='$(arg rate)'/>
-        <param name='cam_index' value='$(arg cam_index)'/>
-
-        <node pkg='robotic_sas_auv_ros' type='node_camera.py' name='node_camera' output='screen'/>
-    </group>
+    <!-- <node pkg='robotic_sas_auv_ros' type='node_object_detection.py' name='node_object_detection' output='screen'/> -->
+    <node pkg='robotic_sas_auv_ros' type='node_opencv.py' name='node_opencv' output='screen'/>
 </launch>

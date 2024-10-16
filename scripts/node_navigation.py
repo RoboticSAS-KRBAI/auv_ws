@@ -3,7 +3,6 @@
 import rospy
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import Sensor, SetPoint, IsStable, Error, ObjectDetection
-
 class Subscriber():
     def __init__(self):
         self.is_object_detected = False
@@ -41,21 +40,24 @@ class Subscriber():
     # Collect Sensor Data
     def callback_sensor(self, data: Sensor):
         # Calculate Error Value
-        error_roll = self.calculate_orientation_error(data.roll, self.set_point.roll)
-        error_pitch = self.calculate_orientation_error(data.pitch, self.set_point.pitch)
+        error_roll = self.calculate_heading_error(data.roll, self.set_point.roll)
+        error_pitch = self.calculate_heading_error(data.pitch, self.set_point.pitch)
         error_yaw = self.calculate_heading_error(data.yaw, self.set_point.yaw)
+        error_sway = self.calculate_heading_error(data.sway, self.set_point.sway)
         error_depth = self.set_point.depth - data.depth
 
         # Determine Stable Position
         self.is_stable.roll = self.generate_is_stable(0, error_roll)
         self.is_stable.pitch = self.generate_is_stable(0, error_pitch)
         self.is_stable.yaw = self.generate_is_stable(0, error_yaw)
+        self.is_stable.sway = self.generate_is_stable(0, error_sway)
         self.is_stable.depth = self.generate_is_stable(0.05, error_depth)
 
         # Validate Error Value
         self.error.roll = 0 if self.is_stable.roll else error_roll
         self.error.pitch = 0 if self.is_stable.pitch else error_pitch
         self.error.yaw = 0 if self.is_stable.yaw else error_yaw
+        self.error.sway = 0 if self.is_stable.sway else error_sway
         self.error.depth = 0 if self.is_stable.depth else error_depth
 
     def callback_object_detection(self, data: ObjectDetection):

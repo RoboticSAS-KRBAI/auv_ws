@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import math
 import rospy
-from std_msgs.msg import Bool, Float32, String
+from std_msgs.msg import Bool, Float32, Int16, String
 from sensor_msgs.msg import Imu
-from robotic_sas_auv_ros.msg import ArduinoSensor, Sensor, ObjectDifference, ObjectDetection, Heading
+from robotic_sas_auv_ros.msg import ArduinoSensor, Sensor, ObjectDetection, Heading, ObjectDifference
 from nav_msgs.msg import Odometry
 
 class Subscriber():
@@ -14,7 +14,6 @@ class Subscriber():
         self.offset_pitch = 0
         self.offset_yaw = 0
         self.offset_depth = 0  
-        self.perintah = "tes"
 
         self.sensor = Sensor()
         self.object_detection = ObjectDetection()
@@ -23,7 +22,6 @@ class Subscriber():
         # Publisher
         self.pub_sensor = rospy.Publisher('sensor', Sensor, queue_size=10)
         self.pub_object_difference = rospy.Publisher('object_difference', ObjectDifference, queue_size=10)
-        self.pub_perintah = rospy.Publisher('perintah', String, queue_size=10)
         self.pub_largest_object = rospy.Publisher('largest_object', String, queue_size=10)
 
         # Subscriber
@@ -33,7 +31,7 @@ class Subscriber():
         rospy.Subscriber('/camera/odom/sample', Odometry, self.callback_odometry)
         rospy.Subscriber('/rosserial/sensor', ArduinoSensor, self.callback_arduino_sensor)
         rospy.Subscriber('/filterYaw', Float32, self.callback_filterYaw)
-        rospy.Subscriber('/nuc/object_detection', ObjectDetection, self.object_detection_callback)
+        rospy.Subscriber('object_detection', ObjectDetection, self.object_detection_callback)
 
     def pre_calibrate(self):
         # Set offset values in order to set the initial sensor value to zero
@@ -74,64 +72,55 @@ class Subscriber():
         self.sensor.yaw = data.data
 
     def object_detection_callback(self, data):
+        rospy.loginfo("Received object detection message with %d bounding boxes", len(data.bounding_boxes))
+    
+        # Center x-coordinate of the frame
+        frame_center_x = 640 // 2
 
         self.object_difference.object_type = "None"
         self.object_difference.x_difference = 0
         self.largest = 0
-        self.largest_object = "None"
-        self.x_gate_list = []
-
-        # Center x-coordinate of the frame
-        frame_center_x = 640 // 2
-        # rospy.loginfo("Received object detection message")
+        self.x_gate = 0
+        self.x_obstacle = 0
+        self.x_bucket = 0
+        
         for bbox in data.bounding_boxes:
+            rospy.loginfo("Class: %s, Probability: %.2f, Coordinates: (%d, %d), (%d, %d)",
+                        bbox.class_name, bbox.probability, bbox.x_min, bbox.y_min, bbox.x_max, bbox.y_max)
+            
             # Calculate the center x-coordinate of the bounding box
             center_x = (bbox.x_min + bbox.x_max) // 2
+            
+            # Calculate the pixel difference between the center of the bounding box and the center of the frame
             x_difference = center_x - frame_center_x
-            bbox_area = (bbox.x_max - bbox.x_min) * (bbox.y_max - bbox.y_min)
 
-            if bbox.class_name == "Obstacle" and bbox.probability >= 0.87 :
-                self.perintah = "Avoid"
-                self.pub_perintah.publish(self.perintah)
-                if bbox_area > self.largest:
-                    self.largest = bbox_area
-                    self.largest_object = "Obstacle"
-
+            if bbox.class_name == "Obstacle":
+                self.object_difference.object_type = bbox.class_name
+                self.object_difference.x_difference = x_difference
+                self.x_obstacle = bbox.x_max - bbox.x_min
+            if bbox.class_name == "Gate":
+                self.object_difference.object_type = bbox.class_name
+                self.object_difference.x_difference = x_difference
+                self.x_Gate = bbox.x_max - bbox.x_min
             if bbox.class_name == "Bucket":
-                self.perintah = "Drop"
-                self.pub_perintah.publish(self.perintah)
-                if bbox_area > self.largest:
-                    self.largest = bbox_area
-                    self.largest_object = "Bucket"
+                self.object_difference.object_type = bbox.class_name
+                self.object_difference.x_difference = x_difference
+                self.x_bucket = bbox.x_max - bbox.x_min
 
-            if bbox.class_name == "Gate" and bbox.probability >= 0.88:
-                self.perintah = "Centering"
-                self.pub_perintah.publish(self.perintah)
-                self.x_gate_list.append((bbox, x_difference))
-                if bbox_area > self.largest:
-                    self.largest = bbox_area
-                    self.largest_object = "Gate"
+            self.largest = max(self.x_obstacle, self.x_gate, self.x_bucket)
 
-        # If two gates detected, select the one with the smallest x_difference
-        if len(self.x_gate_list) > 1:
-            self.x_gate_list.sort(key=lambda x: abs(x[1]))
-            selected_gate = self.x_gate_list[0]
-            self.object_difference.object_type = selected_gate[0].class_name
-            self.object_difference.x_difference = selected_gate[1]
-        elif self.x_gate_list:
-            selected_gate = self.x_gate_list[0]
-            self.object_difference.object_type = selected_gate[0].class_name
-            self.object_difference.x_difference = selected_gate[1]
-
-        if self.largest_object == "Obstacle":
-            self.pub_largest_object.publish("Obstacle")
-        elif self.largest_object == "Bucket":
-            self.pub_largest_object.publish("Bucket")
-        elif self.largest_object == "Gate":
-            self.pub_largest_object.publish("Gate")
-
+            if self.largest == self.x_obstacle:
+                self.pub_largest_object.publish("Obstacle")
+            if self.largest == self.x_bucket:
+                self.pub_largest_object.publish("Bucket")
+            if self.largest == self.x_gate:
+                self.pub_largest_object.publish("Gate")
+                
+            rospy.loginfo("Center x-coordinate of bounding box: %d", center_x)
+            rospy.loginfo("Pixel difference between bounding box center and frame center: %d", x_difference)
+        
         self.pub_object_difference.publish(self.object_difference)
-
+        
     def callback_is_start(self, data: Bool):
         self.is_pre_calibrating = not data.data
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1048</width>
-    <height>558</height>
+    <width>1037</width>
+    <height>542</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,9 +45,9 @@
     <widget class="QGroupBox" name="groupBox">
      <property name="geometry">
       <rect>
-       <x>380</x>
-       <y>330</y>
-       <width>231</width>
+       <x>510</x>
+       <y>340</y>
+       <width>441</width>
        <height>141</height>
       </rect>
      </property>
@@ -57,11 +57,16 @@
      <widget class="QPushButton" name="pushButton_Start">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>70</y>
-        <width>89</width>
-        <height>25</height>
+        <x>60</x>
+        <y>50</y>
+        <width>161</width>
+        <height>61</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>Start</string>
@@ -70,11 +75,16 @@
      <widget class="QPushButton" name="pushButton_Stop">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>70</y>
-        <width>89</width>
-        <height>25</height>
+        <x>240</x>
+        <y>50</y>
+        <width>151</width>
+        <height>61</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>Stop</string>
@@ -87,7 +97,7 @@
        <x>10</x>
        <y>10</y>
        <width>471</width>
-       <height>301</height>
+       <height>351</height>
       </rect>
      </property>
      <property name="autoFillBackground">
@@ -114,11 +124,11 @@
       <property name="font">
        <font>
         <family>URW Gothic L</family>
-        <pointsize>15</pointsize>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="text">
-       <string>Voltage</string>
+       <string>Voltage (volt)</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_6">
@@ -126,18 +136,18 @@
        <rect>
         <x>20</x>
         <y>90</y>
-        <width>131</width>
+        <width>171</width>
         <height>41</height>
        </rect>
       </property>
       <property name="font">
        <font>
         <family>URW Gothic L</family>
-        <pointsize>15</pointsize>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="text">
-       <string>Temperature</string>
+       <string>Temperature (*C)</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_7">
@@ -152,7 +162,7 @@
       <property name="font">
        <font>
         <family>URW Gothic L</family>
-        <pointsize>15</pointsize>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="text">
@@ -171,14 +181,33 @@
       <property name="font">
        <font>
         <family>URW Gothic [urw]</family>
-        <pointsize>15</pointsize>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="text">
        <string>Current</string>
       </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_Voltage">
+     <widget class="QLabel" name="label_16">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>240</y>
+        <width>151</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>URW Gothic [urw]</family>
+        <pointsize>13</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Power (W)</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Voltage_label">
       <property name="geometry">
        <rect>
         <x>190</x>
@@ -189,30 +218,422 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>false</italic>
+        <kerning>false</kerning>
        </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
       </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
       </property>
       <property name="midLineWidth">
-       <number>18</number>
+       <number>19</number>
       </property>
-      <property name="smallDecimalPoint">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="scaledContents">
        <bool>false</bool>
       </property>
-      <property name="digitCount">
-       <number>11</number>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>90</y>
+        <width>271</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="midLineWidth">
+       <number>19</number>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
       </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_InternalPresure">
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>190</y>
+        <width>271</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="midLineWidth">
+       <number>19</number>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>140</y>
+        <width>271</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="midLineWidth">
+       <number>19</number>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>240</y>
+        <width>271</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="midLineWidth">
+       <number>19</number>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_18">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>290</y>
+        <width>67</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>URW Gothic [urw]</family>
+        <pointsize>13</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Depth</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_19">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>290</y>
+        <width>271</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="midLineWidth">
+       <number>19</number>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Depth_label">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>290</y>
+        <width>271</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="midLineWidth">
+       <number>19</number>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="geometry">
+       <rect>
+        <x>500</x>
+        <y>50</y>
+        <width>471</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="title">
+       <string>Robot Orientation</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+      <widget class="QLabel" name="label_21">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>40</y>
+         <width>151</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>URW Gothic L</family>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Roll</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_22">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>130</y>
+         <width>131</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>URW Gothic L</family>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Pitch</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_23">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>210</y>
+         <width>151</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>URW Gothic L</family>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Yaw</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_24">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>40</y>
+         <width>271</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>5</number>
+       </property>
+       <property name="midLineWidth">
+        <number>19</number>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_25">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>130</y>
+         <width>271</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>5</number>
+       </property>
+       <property name="midLineWidth">
+        <number>19</number>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_26">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>220</y>
+         <width>271</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>5</number>
+       </property>
+       <property name="midLineWidth">
+        <number>19</number>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="scaledContents">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="InternalPresure_label">
       <property name="geometry">
        <rect>
         <x>190</x>
@@ -223,30 +644,34 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
        </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
       </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
       </property>
       <property name="midLineWidth">
-       <number>18</number>
+       <number>19</number>
       </property>
-      <property name="smallDecimalPoint">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
        <bool>false</bool>
       </property>
-      <property name="digitCount">
-       <number>11</number>
-      </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_Temperature">
+     <widget class="QLabel" name="Temperature_label">
       <property name="geometry">
        <rect>
         <x>190</x>
@@ -257,31 +682,34 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
-        <underline>false</underline>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
        </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
       </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
       </property>
       <property name="midLineWidth">
-       <number>18</number>
+       <number>19</number>
       </property>
-      <property name="smallDecimalPoint">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
        <bool>false</bool>
       </property>
-      <property name="digitCount">
-       <number>11</number>
-      </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_Depth">
+     <widget class="QLabel" name="Power_label">
       <property name="geometry">
        <rect>
         <x>190</x>
@@ -292,49 +720,34 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
        </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
       </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
       </property>
       <property name="midLineWidth">
-       <number>18</number>
-      </property>
-      <property name="smallDecimalPoint">
-       <bool>false</bool>
-      </property>
-      <property name="digitCount">
-       <number>11</number>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_16">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>240</y>
-        <width>67</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>URW Gothic [urw]</family>
-        <pointsize>15</pointsize>
-       </font>
+       <number>19</number>
       </property>
       <property name="text">
-       <string>Depth</string>
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
       </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_Current">
+     <widget class="QLabel" name="Current_label">
       <property name="geometry">
        <rect>
         <x>190</x>
@@ -345,27 +758,31 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
        </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
       </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
       </property>
       <property name="midLineWidth">
-       <number>18</number>
+       <number>19</number>
       </property>
-      <property name="smallDecimalPoint">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
        <bool>false</bool>
-      </property>
-      <property name="digitCount">
-       <number>11</number>
       </property>
      </widget>
     </widget>
@@ -402,7 +819,7 @@
       <property name="font">
        <font>
         <family>URW Gothic L</family>
-        <pointsize>15</pointsize>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="text">
@@ -421,7 +838,7 @@
       <property name="font">
        <font>
         <family>URW Gothic L</family>
-        <pointsize>15</pointsize>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="text">
@@ -440,14 +857,14 @@
       <property name="font">
        <font>
         <family>URW Gothic L</family>
-        <pointsize>15</pointsize>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="text">
        <string>Yaw</string>
       </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_Roll">
+     <widget class="QLabel" name="Roll_label">
       <property name="geometry">
        <rect>
         <x>170</x>
@@ -458,64 +875,34 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
        </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
       </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
       </property>
       <property name="midLineWidth">
-       <number>18</number>
+       <number>19</number>
       </property>
-      <property name="smallDecimalPoint">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
        <bool>false</bool>
-      </property>
-      <property name="digitCount">
-       <number>11</number>
       </property>
      </widget>
-     <widget class="QLCDNumber" name="lcdNumber_Yaw">
-      <property name="geometry">
-       <rect>
-        <x>170</x>
-        <y>220</y>
-        <width>271</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
-       </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="midLineWidth">
-       <number>18</number>
-      </property>
-      <property name="smallDecimalPoint">
-       <bool>false</bool>
-      </property>
-      <property name="digitCount">
-       <number>11</number>
-      </property>
-     </widget>
-     <widget class="QLCDNumber" name="lcdNumber_Pitch">
+     <widget class="QLabel" name="Pitch_label">
       <property name="geometry">
        <rect>
         <x>170</x>
@@ -526,49 +913,120 @@
       </property>
       <property name="font">
        <font>
-        <family>Noto Sans Mono CJK SC</family>
-        <pointsize>27</pointsize>
-        <underline>false</underline>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
        </font>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
       </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Panel</enum>
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
       </property>
       <property name="midLineWidth">
-       <number>18</number>
+       <number>19</number>
       </property>
-      <property name="smallDecimalPoint">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
        <bool>false</bool>
       </property>
-      <property name="digitCount">
-       <number>11</number>
+     </widget>
+     <widget class="QLabel" name="Yaw_label">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>220</y>
+        <width>271</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Yrsa</family>
+        <pointsize>14</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
+      <property name="midLineWidth">
+       <number>19</number>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
       </property>
      </widget>
+    </widget>
+    <widget class="QPushButton" name="Refresh_button">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>390</y>
+       <width>171</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Refresh</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
      <string>Tab 2</string>
     </attribute>
-    <widget class="QFrame" name="frame">
+    <widget class="QLabel" name="Logo_telkom">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>461</width>
-       <height>201</height>
+       <x>40</x>
+       <y>40</y>
+       <width>431</width>
+       <height>421</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <family>URW Gothic [UKWN]</family>
+       <family>Waree</family>
       </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
+     <property name="tabletTracking">
+      <bool>false</bool>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -577,71 +1035,56 @@
       <enum>QFrame::Plain</enum>
      </property>
      <property name="lineWidth">
-      <number>0</number>
+      <number>6</number>
      </property>
      <property name="midLineWidth">
-      <number>0</number>
+      <number>12</number>
      </property>
-     <widget class="QLabel" name="label">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>10</y>
-        <width>141</width>
-        <height>17</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Waree</family>
-       </font>
-      </property>
-      <property name="text">
-       <string>Sensor Value</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="Sensor_label">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>30</y>
-        <width>431</width>
-        <height>161</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Waree</family>
-       </font>
-      </property>
-      <property name="mouseTracking">
-       <bool>false</bool>
-      </property>
-      <property name="tabletTracking">
-       <bool>false</bool>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>6</number>
-      </property>
-      <property name="midLineWidth">
-       <number>12</number>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="Logo_robotic">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>40</y>
+       <width>431</width>
+       <height>421</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Waree</family>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
+     <property name="tabletTracking">
+      <bool>false</bool>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>6</number>
+     </property>
+     <property name="midLineWidth">
+      <number>12</number>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
     </widget>
    </widget>
   </widget>

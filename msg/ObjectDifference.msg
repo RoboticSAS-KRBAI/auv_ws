@@ -1,0 +1,2 @@
+string object_type
+int16 x_difference

@@ -12,5 +12,7 @@
 
         <node name="witmotion_imu" pkg="witmotion_ros" type="witmotion_ros_node" output="screen"/>
         <node name="node_heading" pkg="robotic_sas_auv_ros" type="node_heading.py" output="screen"/>
+        <node name="node_navi_mantap" pkg="robotic_sas_auv_ros" type="node_navimantap.py" output="screen"/>
+
     </group>
 </launch>

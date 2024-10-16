@@ -61,6 +61,7 @@ add_message_files(
   BoundingBox.msg
   ObjectDetection.msg
   gerak.msg
+  ObjectDifference.msg
 )
 
 ## Generate services in the 'srv' folder

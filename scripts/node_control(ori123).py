@@ -3,7 +3,7 @@
 import rospy
 import time
 from std_msgs.msg import Bool, Int32, String
-from robotic_sas_auv_ros.msg import Error, Actuator, IsStable, ObjectDifference
+from robotic_sas_auv_ros.msg import Error, Actuator, Movement, IsStable
 import numpy as np
 
 class DPRController: # Depth Pitch Roll
@@ -140,7 +140,6 @@ class Subscriber():
         self.move = "stop"
         self.boot_time = 0
         self.start_time = 0
-        self.object_difference = ObjectDifference()
         self.error = Error()
         self.is_stable = IsStable()
         self.ssyController = SSYController(1)
@@ -151,19 +150,14 @@ class Subscriber():
         self.param_delay = rospy.get_param('/nuc/delay')
         self.param_arming_duration = rospy.get_param('/nuc/arming_duration')
 
-        self.pid_depth = PID(1800, 0, 200)
-        # self.pid_depth = PID(1700, 0, 200)
-
+        self.pid_depth = PID(1600, 0, 200)
         self.pid_roll = PID(15, 0, 0)
-
-        # self.pid_pitch = PID(15, 0, 7)
-        self.pid_pitch = PID(40, 0, 7)
-        
+        # self.pid_pitch = PID(1200, 0, 200) 
+        self.pid_pitch = PID(15, 0, 7) # P 2000 I 0 D 500 jika ingin pakai thrust 9 & 10
         self.pid_sway = PID(6, 0, 0)
         
+        # self.pid_yaw = PID(17, 0, 10)
         self.pid_yaw = PID(10, 0, 1)
-
-        self.pid_camera = PID(1, 0, 0)
 
         self.is_armed = False
         self.is_pre_calibrating = False
@@ -187,7 +181,6 @@ class Subscriber():
         rospy.Subscriber('error', Error, self.callback_error)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
         rospy.Subscriber('move', String, self.callback_move)
-        rospy.Subscriber('object_difference', ObjectDifference, self.callback_object_difference)
 
         self.pub_dive = rospy.Publisher('dive',Bool,queue_size=10)
 
@@ -258,22 +251,12 @@ class Subscriber():
         self.movement.depth_pitch_roll(pwm_thruster_5, pwm_thruster_6, pwm_thruster_7,pwm_thruster_8)
 
     def stabilize_depth_pitch_roll(self, error_depth, error_pitch, error_roll):
-        print("set depth")
         self.thrust_depth_pitch_roll = self.dprController.control(self.pid_depth(error_depth), self.pid_pitch(error_pitch), -(self.pid_roll(error_roll)))
-
-    def stabilize_surge_yaw_camera(self, error):
-        rospy.loginfo("Stabilize with camera")
-        self.t_yaw = np.interp(self.pid_camera(error), [-500, 500], [-3, 3])
-        self.thrust_surge_sway_yaw = self.ssyController.control(0, 1, self.t_yaw)
    
     def stabilize_surge_yaw(self, error):
         self.t_yaw = np.interp(self.pid_yaw(error), [-500, 500], [-3, 3])
-        self.thrust_surge_sway_yaw = self.ssyController.control(0, 2.5, self.t_yaw)
+        self.thrust_surge_sway_yaw = self.ssyController.control(0, 2, self.t_yaw)
         # self.thrust_surge_sway_yaw = self.ssyController.control(0, 2, 0) # Tanpa Yaw (Darurat)
-
-    def stabilize_surge_yaw_last(self, error):
-        self.t_yaw = np.interp(self.pid_yaw(error), [-500, 500], [-3, 3])
-        self.thrust_surge_sway_yaw = self.ssyController.control(0, 2.5, 0) # Tanpa Yaw (Darurat)
     
     def stabilize_sway_yaw_left(self, error):
         self.t_yaw = np.interp(self.pid_yaw(error), [-500, 500], [-3, 3])
@@ -283,22 +266,8 @@ class Subscriber():
         self.t_yaw = np.interp(self.pid_yaw(error), [-500, 500], [-3, 3])
         self.thrust_surge_sway_yaw = self.ssyController.control(-4, 1, self.t_yaw)
 
-    def stabilize_yaw_right(self, error):
-        self.t_yaw = np.interp(self.pid_yaw(error), [-500, 500], [-3, 3])
-        self.thrust_surge_sway_yaw = self.ssyController.control(0, 0, 0.75)
-
-    def stabilize_yaw_left(self, error):
-        self.t_yaw = np.interp(self.pid_yaw(error), [-500, 500], [-3, 3])
-        self.thrust_surge_sway_yaw = self.ssyController.control(0, 0, -0.75)
-
     def callback_move(self, data: String):
         self.move = data.data
-
-    def callback_object_difference(self, data: ObjectDifference):
-        self.object_difference.object_type = data.object_type
-        self.object_difference.x_difference = data.x_difference
-        if self.move == "camera":
-            self.stabilize_surge_yaw_camera(self.object_difference.x_difference)
 
     # Collect Constrain PWM
     def callback_constrain_pwm(self, data: Int32):
@@ -313,13 +282,8 @@ class Subscriber():
             self.stabilize_sway_yaw_right(data.yaw)
         elif self.move == "forward":
             self.stabilize_surge_yaw(data.yaw)
-        elif self.move == "last":
-            self.stabilize_surge_yaw_last(data.yaw)
-        elif self.move == "yaw_right":
-            self.stabilize_yaw_right(data.yaw)
-        elif self.move == "yaw_left":
-            self.stabilize_yaw_left(data.yaw)
         
+
     def stabilize(self):
 
         if not self.is_start:
@@ -330,12 +294,13 @@ class Subscriber():
 
         if self.is_in_range(1,5):
             rospy.loginfo("Set Depth")
-        if self.move == "forward" or self.move == "camera" or self.move == "last":
-            #print("Surge Yaw")
-            self.surge_yaw()
-        elif self.move == "left" or self.move == "right" or self.move == "yaw_right" or self.move == "yaw_left":
+
+        if self.move == "left" or self.move == "right":
             self.depth_pitch_roll()
             self.sway_yaw()
+        elif self.move == "forward":
+            if self.is_in_range(6, None):
+                self.surge_yaw()
         elif self.move == "surface":
             self.surface()
 
